@@ -5,7 +5,7 @@
 // 
 //=================================================
 // original author:  Jhovanny Andres Mejia        |
-//         created:  Fryday Anuary 20 2017        |
+//         created:  April 2019                   |
 //         <jhovanny.andres.mejia.guisao@cern.ch> | 
 //=================================================
 
@@ -332,21 +332,25 @@ void JPsiphi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   for(View<pat::PackedCandidate>::const_iterator iTrack1 = thePATTrackHandle->begin();
 	   iTrack1 != thePATTrackHandle->end(); ++iTrack1 )
 	     {
-
+	       //quality cuts track1
                if(iTrack1->charge()==0) continue;
 	       if(fabs(iTrack1->pdgId())!=211) continue;
 	       if(iTrack1->pt()<0.95) continue;
 	       if(!(iTrack1->trackHighPurity())) continue;
+	       if(iTrack1->numberOfPixelHits()<1)continue;
+	       if(iTrack1->numberOfHits()<5)continue;
 
 	       for(View<pat::PackedCandidate>::const_iterator iTrack2 = iTrack1+1;
 	       iTrack2 != thePATTrackHandle->end(); ++iTrack2 ) 
 		 {
-		 
+		   //quality cuts track2
 		   if(iTrack1==iTrack2) continue;
 		   if(iTrack2->charge()==0) continue;
 		   if(fabs(iTrack2->pdgId())!=211) continue;
 		   if(iTrack2->pt()<0.95) continue;
 		   if(!(iTrack2->trackHighPurity())) continue;
+		   if(iTrack2->numberOfPixelHits()<1)continue;
+		   if(iTrack2->numberOfHits()<5)continue;
 
 		   if(iTrack1->charge() == iTrack2->charge()) continue;
 
@@ -406,7 +410,7 @@ void JPsiphi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		     continue;
 		   }
 
-		   if(bCandMC->currentState().mass()<5.0 || bCandMC->currentState().mass()>5.7) continue;
+		   if(bCandMC->currentState().mass()<5.0 || bCandMC->currentState().mass()>6.0) continue;
 		   
 		   if(bDecayVertexMC->chiSquared()<0 || bDecayVertexMC->chiSquared()>50 ) 
 		     {
@@ -508,21 +512,15 @@ void JPsiphi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		   B_DecayVtxYZE ->push_back(bDecayVertexMC->error().czy());
 
 		   // ********************* muon-trigger-machint ****************
-		   
-		   const pat::TriggerObjectStandAloneCollection muHLTMatches1_t1 = iMuon1->triggerObjectMatchesByFilter("hltDisplacedmumuFilterDimuon25Jpsis");
-		   const pat::TriggerObjectStandAloneCollection muHLTMatches2_t1 = iMuon2->triggerObjectMatchesByFilter("hltDisplacedmumuFilterDimuon25Jpsis");
-		   
-		   const pat::TriggerObjectStandAloneCollection muHLTMatches1_t2 = iMuon1->triggerObjectMatchesByFilter("hltJpsiTkVertexFilter");
-		   const pat::TriggerObjectStandAloneCollection muHLTMatches2_t2 = iMuon2->triggerObjectMatchesByFilter("hltJpsiTkVertexFilter");
-		   
-		   const pat::TriggerObjectStandAloneCollection muHLTMatches1_t4 = iMuon1->triggerObjectMatchesByFilter("hltJpsiTkTkVertexFilterPhiKstar");
-		   const pat::TriggerObjectStandAloneCollection muHLTMatches2_t4 = iMuon2->triggerObjectMatchesByFilter("hltJpsiTkTkVertexFilterPhiKstar");
+
+		   const pat::Muon* muon1 = &(*iMuon1);
+		   const pat::Muon* muon2 = &(*iMuon2);
 
 		   int tri_Dim25_tmp = 0, tri_JpsiTk_tmp = 0,  tri_JpsiTkTk_tmp = 0;
 		   
-		   if (muHLTMatches1_t1.size() > 0 && muHLTMatches2_t1.size() > 0) tri_Dim25_tmp = 1;
-		   if (muHLTMatches1_t2.size() > 0 && muHLTMatches2_t2.size() > 0) tri_JpsiTk_tmp = 1;
-		   if (muHLTMatches1_t4.size() > 0 && muHLTMatches2_t4.size() > 0) tri_JpsiTkTk_tmp = 1;
+		   if (muon1->triggerObjectMatchByPath("HLT_Dimuon25_Jpsi_v*")!=nullptr && muon2->triggerObjectMatchByPath("HLT_Dimuon25_Jpsi_v*")!=nullptr) tri_Dim25_tmp = 1;
+		   if (muon1->triggerObjectMatchByPath("HLT_DoubleMu4_JpsiTrk_Displaced_v*")!=nullptr && muon1->triggerObjectMatchByPath("HLT_DoubleMu4_JpsiTrk_Displaced_v*")!=nullptr) tri_JpsiTk_tmp = 1;
+		   if (muon1->triggerObjectMatchByPath("HLT_DoubleMu4_JpsiTrkTrk_Displaced_v*")!=nullptr && muon1->triggerObjectMatchByPath("HLT_DoubleMu4_JpsiTrkTrk_Displaced_v*")!=nullptr) tri_JpsiTkTk_tmp = 1;
 		   
 		   tri_Dim25->push_back( tri_Dim25_tmp );	       
 		   tri_JpsiTk->push_back( tri_JpsiTk_tmp );

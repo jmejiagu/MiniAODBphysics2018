@@ -19,10 +19,10 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 
-#'file:/asanchez/data/store/data/Run2016G/Charmonium/MINIAOD/23Sep2016-v1/A4B4AC67-B996-E611-9ECD-008CFAFBE8CE.root',
-
 #MiniAOD
-'/store/data/Run2018C/Charmonium/MINIAOD/PromptReco-v2/000/319/756/00000/EEF6CEC1-698B-E811-8081-02163E00AF5F.root',
+#'/store/data/Run2018C/Charmonium/MINIAOD/PromptReco-v2/000/319/756/00000/EEF6CEC1-698B-E811-8081-02163E00AF5F.root',
+## RE-REco
+'/store/data/Run2018C/Charmonium/MINIAOD/17Sep2018-v1/60000/FF015DDD-854C-FA4B-9E21-36DEAD0A0B0E.root',           
         
  )
 )
@@ -30,7 +30,6 @@ process.source = cms.Source("PoolSource",
 process.triggerSelection = cms.EDFilter("TriggerResultsFilter",
                                         triggerConditions = cms.vstring('HLT_Dimuon20_Jpsi_Barrel_Seagulls_v*',
                                                                         'HLT_Dimuon25_Jpsi_v*',
-                                                                        'HLT_DoubleMu4_3_Jpsi_Displaced_v*',
                                                                         'HLT_DoubleMu4_JpsiTrkTrk_Displaced_v*',
                                                                         'HLT_DoubleMu4_JpsiTrk_Displaced_v*',
                                                                         'HLT_DoubleMu4_Jpsi_Displaced_v*'                                   
@@ -40,11 +39,7 @@ process.triggerSelection = cms.EDFilter("TriggerResultsFilter",
                                         throw = cms.bool(False)
                                         )
 
-process.load("myAnalyzers.JPsiKsPAT.slimmedMuonsTriggerMatcher_cfi")  
-
 process.load("myAnalyzers.JPsiKsPAT.PsiphiRootupler_cfi")
-process.rootuple.dimuons = cms.InputTag('slimmedMuonsWithTrigger') 
-#process.rootuple.dimuons = cms.InputTag('miniaodPATMuonsWithTrigger')                                                                                
 
 process.TFileService = cms.Service("TFileService",
        fileName = cms.string('Rootuple_BstoJpsiphi_2018_MiniAOD.root'),                                                                            
@@ -53,13 +48,11 @@ process.TFileService = cms.Service("TFileService",
 
 process.mySequence = cms.Sequence(
                                    process.triggerSelection *
-    				   process.slimmedMuonsWithTriggerSequence *
                                    process.rootuple
 				   )
-
 #process.p = cms.Path(process.mySequence)
 
-process.p = cms.Path(process.triggerSelection*process.slimmedMuonsWithTriggerSequence*process.rootuple)
+process.p = cms.Path(process.triggerSelection*process.rootuple)
 #process.p = cms.Path(process.rootuple)
 
 
