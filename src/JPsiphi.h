@@ -43,7 +43,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h" // muy importante para MiniAOD
-
+#include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
@@ -63,6 +63,12 @@
 
 #include "TFile.h"
 #include "TTree.h"
+#include <vector>
+#include "TLorentzVector.h"
+#include "TVector3.h"
+#include <utility>
+#include <string>
+
 
 
 //
@@ -77,7 +83,8 @@ public:
   void fillV0(const reco::Candidate& genv0);
   int const getMuCat(reco::Muon const& muon) const;
   bool IsTheSame(const pat::GenericParticle& tk, const pat::Muon& mu);
-
+  bool   isAncestor(const reco::Candidate*, const reco::Candidate*);
+  double GetLifetime(TLorentzVector, TVector3, TVector3);
   
 private:
   virtual void beginJob() ;
@@ -87,9 +94,12 @@ private:
   void printout(const RefCountedKinematicParticle& myParticle) const;
   void printout(const RefCountedKinematicTree& myTree) const;
   
+  
     // ----------member data ---------------------------
   edm::EDGetTokenT<edm::View<pat::Muon>> dimuon_Label;
   edm::EDGetTokenT<edm::View<pat::PackedCandidate>> trakCollection_label;
+  edm::EDGetTokenT<reco::GenParticleCollection> genCands_;
+  edm::EDGetTokenT<pat::PackedGenParticleCollection> packedGenToken_;
   edm::EDGetTokenT<reco::VertexCollection> primaryVertices_Label;
   edm::EDGetTokenT<edm::TriggerResults> triggerResults_Label;
   edm::EDGetTokenT<reco::BeamSpot> BSLabel_;
@@ -162,6 +172,9 @@ private:
   int  run, event;
   int lumiblock;
 
+  TLorentzVector gen_b_p4,gen_phi_p4,gen_kaon1_p4,gen_kaon2_p4,gen_jpsi_p4,gen_muon1_p4,gen_muon2_p4;
+  TVector3       gen_b_vtx,gen_jpsi_vtx;
+  float          gen_b_ct;
 
 };
 #endif
